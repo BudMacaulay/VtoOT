@@ -16,29 +16,20 @@ def VtoOT(input_pos, outputdir):
     #-------------------------------------------------------------------------------
     # Argument parser
     #-------------------------------------------------------------------------------
-    parser = argparse.ArgumentParser(description=vtoOT.__doc__,
-                                     epilog="BM151020")
+    #parser = argparse.ArgumentParser(description=vtoOT.__doc__,
+    #                                 epilog="BM151020")
     # Positional arguments
-    parser.add_argument('inputpos',
-                        default="POSCAR",
-                        type=str, nargs='?',
-                        help='set input POSCAR. Default is the one in this directory;')
+    #parser.add_argument('inputpos',
+    #                    default="POSCAR",
+    #                    type=str, nargs='?',
+    #                    help='set input POSCAR. Default is the one in this directory;')
     # Optional args
-    parser.add_argument('--output',
-                        type=str,
-                        action="store_true", dest=outputdir,
-                        help='set an outputdirectory. Default is here too probably')
+    #parser.add_argument('--output',
+    #                    type=str,
+    #                    action="store_true", dest=outputdir,
+    #                    help='set an outputdirectory. Default is here too probably')
 
-    args = parser.parse_args(argv)
-
-
-    input_pos = args.inputpos
-    if args.outputdir == None:
-        outputdir = "/".join(input_pos.split("/")[:-1])
-
-    else:
-        outputdir = args.outputdir
-
+    #args = parser.parse_args(argv)
 
     listofchanged = []
     if input_pos.endswith("POSCAR"):
@@ -110,5 +101,9 @@ def VtoOT(input_pos, outputdir):
             outfile.write(line)
 
 
-if __name__ == "__main__":
-    VtoOT(sys.argv[1:])
+if __name__ == "__main__": #Stuff below here is here until I can come up with an adequate parser
+    if len(sys.argv) == 2:
+        VtoOT(input_pos=sys.argv[1], outputdir="/".join(sys.argv[1].split("/")[:-1]))
+
+    elif len(sys.argv) == 3:
+        VtoOT(input_pos=sys.argv[1], outputdir=sys.argv[2])
