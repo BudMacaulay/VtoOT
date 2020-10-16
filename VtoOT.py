@@ -60,24 +60,21 @@ def VtoOT(input_pos, outputdir):
     if readlines[7].startswith("S") or readlines[7].startswith("s"):
         print("dynamic vasp system detected creating correct BLOCK SPECIES.")
 
-    at
     totnumb = readlines[6].split()
     totnumb = [int(x) for x in totnumb]
     totnumb = sum(totnumb)
 
-    print(totnumb + " ATOMS FOUND in POS")
+    print(str(totnumb) + " ATOMS FOUND in POS")
     atomslist = readlines[5].split()
 
     posblock = []
-    for i in readlines[-totnumb:]:
-        if i.endswith("T T T\n"):
+    for i in readlines[-totnumb:]: # This loop checks if each line ends in "T or F" pretty much
+        if "T" in i[-10:]:
             posblock.append("_T {} \n".format(i[:-7]))
-
-        elif i.endswith("F F F\n"):
+        elif "F"in i[-10:]:
             posblock.append("_F {}".format(i[:-7]))
-
         else:
-            print("Line {} is not parsable, is there something other than F F F/T T T? ")
+            print("Line {} is not parsable, is there something other than F F F/T T T? at the end of the file")
             print("Saving as T anyway")
             posblock.append("_F {} \n".format(i[:-7]))
 
@@ -106,4 +103,4 @@ if __name__ == "__main__": #Stuff below here is here until I can come up with an
         VtoOT(input_pos=sys.argv[1], outputdir="/".join(sys.argv[1].split("/")[:-1]))
 
     elif len(sys.argv) == 3:
-        VtoOT(input_pos=sys.argv[1], outputdir=sys.argv[2])
+        VtoOT(input_pos=sys.argv[1], outputdir=sys.argv[2]):
