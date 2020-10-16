@@ -34,7 +34,6 @@ def VtoOT(input_pos, outputdir):
     #                    help='set an outputdirectory. Default is here too probably')
 
     #args = parser.parse_args(argv)
-
     listofchanged = []
     if input_pos.endswith("POSCAR"):
         print("READING POS")
@@ -57,9 +56,11 @@ def VtoOT(input_pos, outputdir):
 
     # INITIAL CHECK - WILL REWORK TO DO MATH HERE AND AUTOCONV TO CART.
     if readlines[8].startswith("C") or readlines[8].startswith("c"):
+        print("COOL")
     else:
         print(" ENSURE LINE 8 is 'CARTESIAN' and atom co-ords are too!")
-        exit()
+        #exit()
+
 
     # FINAL CHECK HERE! - If there wasn't an "Selective dynamics line it'll do its best"
     if readlines[7].startswith("S") or readlines[7].startswith("s"):
@@ -82,7 +83,7 @@ def VtoOT(input_pos, outputdir):
         if "T" in i[-10:]:
             posblock.append("_T {} \n".format(" ".join(i.split()[0:3])))
         elif "F" in i[-10:]:
-            posblock.append("_F {}".format(" ".join(i.split()[0:3])))
+            posblock.append("_F {}\n".format(" ".join(i.split()[0:3])))
         else:
             print("Line {} is not parsable, is there something other than F F F/T T T? at the end of the file")
             print("Saving as T anyway")
@@ -90,7 +91,6 @@ def VtoOT(input_pos, outputdir):
 
     posblock2 = []
     for i in range(0, len(atomslist)):
-        print(i)
         for line in posblock:
             posblock2.append(atomslist[i] + line)
 
@@ -109,7 +109,7 @@ def VtoOT(input_pos, outputdir):
             constblock.append("{} NONE\n".format(spec))
         elif "_F" in spec:
             constblock.append("{} FIXED\n".format(spec))
-        speciesblock.append("{0} {1} {2}. ngwf_num ngwf_rad\n".format(spec, spec[:-2]), element(spec[:-2].atomic_number)) # I have a mini json file that will strip atom numbers e.t.c.
+        speciesblock.append("{0} {1} {2} ngwf_num ngwf_rad\n".format(spec, spec[:-2], element(spec[:-2]).atomic_number)) # I have a mini json file that will strip atom numbers e.t.c.
 
     speciesblock.append("%ENDBLOCK SPECIES\n")
     constblock.append("%ENDBLOCK SPECIES_CONSTRAINTS\n")
