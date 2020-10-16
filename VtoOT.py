@@ -68,7 +68,7 @@ def VtoOT(input_pos, outputdir):
     atomslist = readlines[5].split()
 
     posblock = []
-    for i in readlines[-totnumb:]: # This loop checks if each line ends in "T or F" pretty much
+    for i in readlines[-totnumb:]: # This loop checks if each line ends in "T or F" pretty much:wq
         if "T" in i[-10:]:
             posblock.append("_T {} \n".format(i[:-7]))
         elif "F"in i[-10:]:
@@ -84,10 +84,10 @@ def VtoOT(input_pos, outputdir):
         for line in posblock:
             posblock2.append(atomslist[i] + line)
 
-    if readlines[8].startswith("D") or readlines[8].startswith("d"):
+    if readlines[8].startswith("C") or readlines[8].startswith("c"):
         posblock2 = ['%BLOCK POSITIONS_ABS\n', 'ang\n', *posblock2, '%ENDBLOCK POSITIONS_ABS\n']
     else:
-        print(" ENSURE LINE 8 is 'DIRECT' and atom co-ords are too!")
+        print(" ENSURE LINE 8 is 'CARTESIAN' and atom co-ords are too!")
         exit()
 
     completeblock = [latticeblock, "\n", posblock2]
