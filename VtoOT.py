@@ -3,15 +3,19 @@
 import sys
 from ase.io import read, write
 import os, argparse, logging
+import re
+from ase import atoms
+from mendeleev import element
 
 
 def VtoOT(input_pos, outputdir):
     """Converts a vasp POSCAR (including Ts/F's to a onetep xyz + a onetep dynblock (located in a file called [
     atomgeo]))  dyna ==True is not yet used and also it currently doesnt use.
 
-    As of current please only use on files that are POSCARs that are direct AND dynamic since i have no error handling.
+    As of current please only use on files that are POSCARs
+    that are Cartesian AND dynamic since i have no limitted error handling. It miiight work if its not dynamic
+    in which it'll force all atoms to be so
     """
-
 
     #-------------------------------------------------------------------------------
     # Argument parser
@@ -38,10 +42,33 @@ def VtoOT(input_pos, outputdir):
         print("ONLY POSCARS ALLOWED")
         exit()
 
-    AS = read(input_pos)
+    # I do my own file parsing because im a masochist
+    readlines = []
+    with open(input_pos, "r") as inputpos:
+        for line in inputpos:
+            readlines.append(line)
+
+    totnumb = readlines[6].split()
+    totnumb = [int(x) for x in totnumb]
+    totnumb = sum(totnumb) # Total number of atoms.
+    print(str(totnumb) + " ATOMS FOUND in POS")
+    atomslist = readlines[5].split() # Small list to iterate over and set right flags
     write(outputdir + "/ATOMsites.xyz",read(input_pos)) # Saves an XYZ quickly since its good to do so.
 
-    # A block that converts the XYZ of a vasp POSCAR into a onetep block. This WORKS!
+    # INITIAL CHECK - WILL REWORK TO DO MATH HERE AND AUTOCONV TO CART.
+    if readlines[8].startswith("C") or readlines[8].startswith("c"):
+        posblock2 = ['%BLOCK POSITIONS_ABS\n', 'ang\n', *posblock2, '%ENDBLOCK POSITIONS_ABS\n']
+    else:
+        print(" ENSURE LINE 8 is 'CARTESIAN' and atom co-ords are too!")
+        exit()
+
+    # FINAL CHECK HERE! - If there wasn't an "Selective dynamics line it'll do its best"
+    if readlines[7].startswith("S") or readlines[7].startswith("s"):
+        print("dynamic vasp system detected creating correct BLOCK SPECIES.")
+    else:
+        print("no dyn line found - doing the best i can - expect bigprintouts.")
+
+
     latticeblock = ['%BLOCK LATTICE_CART\n', 'ang\n']
     for i in range(0, 3):
         stringer = str(read(input_pos).cell.T[i])  # lattice dims
@@ -51,47 +78,45 @@ def VtoOT(input_pos, outputdir):
     latticeblock.append('%ENDBLOCK LATTICE_CART\n')
 
 
-    # A block that reads the input_pos and converts the atoms with T/F into the correct format.
-    dynablock = ['BLOCK SPECIES_CONSTRAINTS\n']
-    readlines = []
-    with open(input_pos, "r") as inputpos:
-        for line in inputpos:
-            readlines.append(line)
-    if readlines[7].startswith("S") or readlines[7].startswith("s"):
-        print("dynamic vasp system detected creating correct BLOCK SPECIES.")
-
-    totnumb = readlines[6].split()
-    totnumb = [int(x) for x in totnumb]
-    totnumb = sum(totnumb)
-
-    print(str(totnumb) + " ATOMS FOUND in POS")
-    atomslist = readlines[5].split()
-
     posblock = []
-    for i in readlines[-totnumb:]: # This loop checks if each line ends in "T or F" pretty much:wq
+    for i in readlines[-totnumb:]: # This loop checks if each line ends in "T or F" pretty much
         if "T" in i[-10:]:
-            posblock.append("_T {} \n".format(i[:-7]))
-        elif "F"in i[-10:]:
-            posblock.append("_F {}".format(i[:-7]))
+            posblock.append("_T {} \n".format(" ".join(i.split()[0:3])))
+        elif "F" in i[-10:]:
+            posblock.append("_F {}".format(" ".join(i.split()[0:3])))
         else:
             print("Line {} is not parsable, is there something other than F F F/T T T? at the end of the file")
             print("Saving as T anyway")
             posblock.append("_F {} \n".format(i[:-7]))
 
     posblock2 = []
-    for i in range(0,len(atomslist)):
+    for i in range(0, len(atomslist)):
         print(i)
         for line in posblock:
             posblock2.append(atomslist[i] + line)
 
-    if readlines[8].startswith("C") or readlines[8].startswith("c"):
-        posblock2 = ['%BLOCK POSITIONS_ABS\n', 'ang\n', *posblock2, '%ENDBLOCK POSITIONS_ABS\n']
-    else:
-        print(" ENSURE LINE 8 is 'CARTESIAN' and atom co-ords are too!")
-        exit()
 
-    completeblock = [latticeblock, "\n", posblock2]
+    # Two important blocks remain - The constraints and the species they are both similar so piled together
+    allspecies = []
+    for i in posblock2[2:-1]:
+        allspecies.append(i[0:4].strip()) # Pull the first 4 letters(this is the upper limit for onetep labels anyway)
+    allspecies = list(set(allspecies)) # The list of the set of all atoms observed in POSCAR
+    speciesblock = ["%BLOCK SPECIES\n"]
+    constblock = ["%BLOCK SPECIES_CONSTRAINTS\n"]
+    for spec in allspecies:
+        if "_T" in spec:
+            constblock.append("{} NONE\n".format(spec))
+        elif "_F" in spec:
+            constblock.append("{} FIXED\n".format(spec))
+        speciesblock.append("{0} {1} {2}. ngwf_num ngwf_rad\n".format(spec, spec[:-2]), element(spec[:-2].atomic_number)) # I have a mini json file that will strip atom numbers e.t.c.
+
+    speciesblock.append("%ENDBLOCK SPECIES\n")
+    constblock.append("%ENDBLOCK SPECIES_CONSTRAINTS\n")
+
+    completeblock = [latticeblock, "\n", speciesblock, "\n", constblock, "\n", posblock2]
     completeblock = [val for sublist in completeblock for val in sublist]
+
+
 
     with open(outputdir + "/ATOMsites.dat", "w+") as outfile:
         for line in completeblock:
@@ -103,4 +128,4 @@ if __name__ == "__main__": #Stuff below here is here until I can come up with an
         VtoOT(input_pos=sys.argv[1], outputdir="/".join(sys.argv[1].split("/")[:-1]))
 
     elif len(sys.argv) == 3:
-        VtoOT(input_pos=sys.argv[1], outputdir=sys.argv[2]):
+        VtoOT(input_pos=sys.argv[1], outputdir=sys.argv[2])
