@@ -57,7 +57,6 @@ def VtoOT(input_pos, outputdir):
 
     # INITIAL CHECK - WILL REWORK TO DO MATH HERE AND AUTOCONV TO CART.
     if readlines[8].startswith("C") or readlines[8].startswith("c"):
-        posblock2 = ['%BLOCK POSITIONS_ABS\n', 'ang\n', *posblock2, '%ENDBLOCK POSITIONS_ABS\n']
     else:
         print(" ENSURE LINE 8 is 'CARTESIAN' and atom co-ords are too!")
         exit()
@@ -94,6 +93,8 @@ def VtoOT(input_pos, outputdir):
         print(i)
         for line in posblock:
             posblock2.append(atomslist[i] + line)
+
+    posblock2 = ['%BLOCK POSITIONS_ABS\n', 'ang\n', *posblock2, '%ENDBLOCK POSITIONS_ABS\n']
 
 
     # Two important blocks remain - The constraints and the species they are both similar so piled together
