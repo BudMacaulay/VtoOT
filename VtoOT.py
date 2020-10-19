@@ -139,11 +139,11 @@ def VtoOT(input_pos, jsonfile, outputdir):
         print("HubbardU flag switched on saving a U block in the .dat")
         Ublock = ["%BLOCK HUBBARD\n"]
         if config2_dict.get("GuessHubbardU") is True:
-            for element in allspecies:
-                Ublock.append("{0} l^2 U(eV) J(eV) Z(-10) a(addforce) sig(spin)\n".format(element))
+            for el in allspecies:
+                Ublock.append("{0} l^2 U(eV) J(eV) Z(-10) a(addforce) sig(spin)\n".format(el))
         else:
-            for element in allspecies:
-                Ublock.append("{0} l^2 U(eV) J(eV) Z(-10) a(addforce) sig(spin)\n".format(element))
+            for el in allspecies:
+                Ublock.append("{0} l^2 U(eV) J(eV) Z(-10) a(addforce) sig(spin)\n".format(el))
 
         Ublock.append("%ENDBLOCK HUBBARD\n")
     else:
