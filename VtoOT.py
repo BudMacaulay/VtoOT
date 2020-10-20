@@ -23,7 +23,7 @@ def VtoOT(argv):
     that are Cartesian AND dynamic since i have no limitted error handling. It miiight work if its not dynamic
     in which it'll force all atoms to be so
     """
-
+    ############################################ ARGUMENT PARSER #######################################################
     # Create the parser
     parser = argparse.ArgumentParser(description='A tool to create .dat files')
 
@@ -67,6 +67,8 @@ def VtoOT(argv):
         print("no output directory detected - dumping in POSCAR directory")
         outputdir = "/".join(sys.argv[1].split("/")[:-1])
 
+    ############################################### END ARGUMENT PARSER ################################################
+
 
     # I do my own file parsing because im a masochist
     readlines = []
@@ -74,20 +76,25 @@ def VtoOT(argv):
         for line in inputpos:
             readlines.append(line)
 
+    # Random saving of variables from the POSCAR cause i print out a lot at the moment.
     totnumb = readlines[6].split()
-    totnumb = [int(x) for x in totnumb]
-    totnumb = sum(totnumb)  # Total number of atoms.
+    numblist = [int(x) for x in totnumb]
+    totnumb = sum(numblist)  # Total number of atoms.
     print(str(totnumb) + " ATOMS FOUND in POS")
     atomslist = readlines[5].split()  # Small list to iterate over and set right flags
-    write(outputdir + "/ATOMsites.xyz", read(input_pos))  # Saves an XYZ quickly since its good to do so.
 
+    # Make the thing to iterate over.
+    merged_list = [(atomslist[i], numblist[i]) for i in range(0, len(atomslist))]
+    merged = [[x] * y for x,y in merged_list]
+    merged = [val for sublist in merged for val in sublist]
+
+    write(outputdir + "/ATOMsites.xyz", read(input_pos))  # Saves an XYZ quickly since its good to do so.
     # INITIAL CHECK - WILL REWORK TO DO MATH HERE AND AUTOCONV TO CART.
     if readlines[8].startswith("C") or readlines[8].startswith("c"):
         print("COOL")
     else:
         print("Direct POSCAR found - This will break my parser if continued")
-        val = input("Shall i update your poscar to be cartesian? - THIS HAS NOT BEEN EXTENSIVE TESTED: Y/N")
-        if val.lower == "y":
+        if input("Shall i update your poscar to be cartesian? - THIS HAS NOT BEEN EXTENSIVE TESTED: Y/N").lower() == "y":
             dir2cart(input_pos)
         else:
             exit()
@@ -117,11 +124,10 @@ def VtoOT(argv):
             print("Line {} is not parsable, is there something other than F F F/T T T? at the end of the file")
             print("Saving as T anyway")
             posblock.append("_F {} \n".format(" ".join(i.split()[0:3])))
+    posblock2 = [i + j for i, j in zip(merged, posblock)] #dumping back inside
 
-    posblock2 = []
-    for i in range(0, len(atomslist)):
-        for line in posblock:
-            posblock2.append(atomslist[i] + line)
+    for i in enumerate(merged):
+        posblock2.append(merged[i[0]] + posblock[i[0]])
 
     posblock2 = ['%BLOCK POSITIONS_ABS\n', 'ang\n', *posblock2, '%ENDBLOCK POSITIONS_ABS\n']
 
@@ -138,7 +144,7 @@ def VtoOT(argv):
         elif "_F" in spec:
             constblock.append("{} FIXED\n".format(spec))  #
 
-        if config2_dict.get("Guess_NGWF") == True:  # As of current this does nothing. Will add a mini periodictable.
+        if config2_dict.get("Guess_NGWF") is True:  # As of current this does nothing. Will add a mini periodictable.
             speciesblock.append("{0} {1} {2} ngwf_num ngwf_rad\n".format(spec, spec[:-2],
                                                                          element(spec[:-2]).atomic_number))
         else:
