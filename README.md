@@ -2,6 +2,11 @@
 
 A Small Tool to convert vasp POSCARs into a ONETEP ready .dat file (posblock e.t.c) Where the user can then attach the new upto dat positions onto a starting .dat file with the calculation details.
 
+## TODO:
+1. Actually get some information on what the "Guesses" should be and save in a seperate .json for initialisation. Would save me alot of time. 
+As of current the [config.json flags "Guess{flag} do nothing]
+2. Incorp the parser directly as variables cause atm it's a bit silly but working.
+
 
 ## Prerequisites:
 1. This full directory (since dir2cart is used on POSCAR files to convert them to "cartesian mode" since that's the most common way POSCAR's are saved)
