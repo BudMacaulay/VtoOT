@@ -35,7 +35,7 @@ def VtoOT(argv):
     # Optional arguments
     parser.add_argument('-o', '--output',
                         dest="OUTdir",
-                        help="The output directory")
+                        help="The output directory -if none given defaults to the POSCAR directory")
 
     parser.add_argument('-c', '--config',
                         type=str, dest="CONfile",
