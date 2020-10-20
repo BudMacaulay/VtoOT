@@ -30,7 +30,6 @@ def VtoOT(argv):
     # Add the arguments
     parser.add_argument("POSCARfile",
                         default="POSCAR", type=str,
-                        required=True,
                         help='Set input POSCAR file, Default POSCAR [in current dir.]')
 
     # Optional arguments
@@ -59,6 +58,7 @@ def VtoOT(argv):
             config2_dict = json.load(f)
     else:
         print("No CONFIG json - using defaults.")
+        config2_dict = {}  # Load an empty config (says "no settings")
 
     if args.OUTdir:
         print("output directory detected dumping there")
