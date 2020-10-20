@@ -124,11 +124,8 @@ def VtoOT(argv):
             print("Line {} is not parsable, is there something other than F F F/T T T? at the end of the file")
             print("Saving as T anyway")
             posblock.append("_F {} \n".format(" ".join(i.split()[0:3])))
+
     posblock2 = [i + j for i, j in zip(merged, posblock)] #dumping back inside
-
-    for i in enumerate(merged):
-        posblock2.append(merged[i[0]] + posblock[i[0]])
-
     posblock2 = ['%BLOCK POSITIONS_ABS\n', 'ang\n', *posblock2, '%ENDBLOCK POSITIONS_ABS\n']
 
     # Two important blocks remain - The constraints and the species they are both similar so piled together
