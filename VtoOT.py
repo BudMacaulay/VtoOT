@@ -58,7 +58,7 @@ def VtoOT(argv):
             config2_dict = json.load(f)
     else:
         print("No CONFIG json - using defaults.")
-        config2_dict = {}  # Load an empty config (says "no settings")
+        config2_dict = {"dynamic":True}  # Load an empty config (says "no settings - cause this is smart")
 
     if args.OUTdir:
         print("output directory detected dumping there")
@@ -85,12 +85,13 @@ def VtoOT(argv):
     if readlines[8].startswith("C") or readlines[8].startswith("c"):
         print("COOL")
     else:
-        print("Direct POSCAR found")
-        val = input("Shall i update your poscar to be cartesian? : Y/N")
+        print("Direct POSCAR found - This will break my parser if continued")
+        val = input("Shall i update your poscar to be cartesian? - THIS HAS NOT BEEN EXTENSIVE TESTED: Y/N")
         if val.lower == "y":
             dir2cart(input_pos)
         else:
             exit()
+        print("Poscar updated.")
 
     # FINAL CHECK HERE! - If there wasn't an "Selective dynamics line it'll do its best"
     if readlines[7].startswith("S") or readlines[7].startswith("s"):
