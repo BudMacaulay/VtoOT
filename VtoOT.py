@@ -15,7 +15,7 @@ import json
 # TODO - consider a better way to check for T/S's (perhaps some regex is needed.)
 # TODO - Add a ngwf_num / ngwf_rad Auto filler just for convienience
 
-def VtoOT(input_pos, jsonfile, outputdir):
+def VtoOT(argv):
     """Converts a vasp POSCAR (including Ts/F's to a onetep xyz + a onetep dynblock (located in a file called [
     atomgeo]))  dyna ==True is not yet used and also it currently doesnt use.
 
@@ -24,33 +24,49 @@ def VtoOT(input_pos, jsonfile, outputdir):
     in which it'll force all atoms to be so
     """
 
-    # -------------------------------------------------------------------------------
-    # Argument parser
-    # -------------------------------------------------------------------------------
-    # parser = argparse.ArgumentParser(description=VtoOT.__doc__,
-    #                                 epilog="BM151020")
-    # Positional arguments
-    # parser.add_argument('inputpos',
-    #                    default="POSCAR",
-    #                    type=str, nargs='?',
-    #                    help='set input POSCAR. Default is the one in this directory;')
-    # Optional args
-    # parser.add_argument('--output',
-    #                    type=str,
-    #                    action="store_true", dest=outputdir,
-    #                    help='set an outputdirectory. Default is here too probably')
+    # Create the parser
+    parser = argparse.ArgumentParser(description='A tool to create .dat files')
 
-    # args = parser.parse_args(argv)
+    # Add the arguments
+    parser.add_argument("POSCARfile",
+                        default="POSCAR", type=str,
+                        required=True,
+                        help='Set input POSCAR file, Default POSCAR [in current dir.]')
 
-    # Load the json file and read what is desired to be put in the .dat file.
-    with open('VtoOTconf.json', 'r') as f:
-        config2_dict = json.load(f)
+    # Optional arguments
+    parser.add_argument('-o', '--output',
+                        dest="OUTdir",
+                        help="The output directory")
 
-    if input_pos.endswith("POSCAR"):
+    parser.add_argument('-c', '--config',
+                        type=str, dest="CONfile",
+                        help="Path to a .config file")
+
+    # Execute the parse_args() method
+    args = parser.parse_args()
+
+    #  Setting args
+    if args.POSCARfile.endswith("POSCAR"):
         print("READING POS")
+        input_pos = args.POSCARfile
     else:
         print("ONLY POSCARS ALLOWED")
         exit()
+
+    if args.CONfile:
+        print("CONFIG json has been given")
+        with open('VtoOTconf.json', 'r') as f:
+            config2_dict = json.load(f)
+    else:
+        print("No CONFIG json - using defaults.")
+
+    if args.OUTdir:
+        print("output directory detected dumping there")
+        outputdir = args.OUTdir
+    else:
+        print("no output directory detected - dumping in POSCAR directory")
+        outputdir = "/".join(sys.argv[1].split("/")[:-1])
+
 
     # I do my own file parsing because im a masochist
     readlines = []
@@ -170,12 +186,6 @@ def VtoOT(input_pos, jsonfile, outputdir):
             outfile.write(line)
 
 
-if __name__ == "__main__":  # Stuff below here is here until I can come up with an adequate parser
-    if len(sys.argv) == 3:
-        VtoOT(input_pos=sys.argv[1], jsonfile=sys.argv[2], outputdir="/".join(sys.argv[1].split("/")[:-1]))
+if __name__ == "__main__":  # Parser testing.
+    VtoOT(sys.argv[1:])
 
-    elif len(sys.argv) == 4:
-        VtoOT(input_pos=sys.argv[1], jsonfile=sys.argv[2], outputdir=sys.argv[3])
-
-    else:
-        print("Unknown number of sys variables. - Read the tutorial.")
