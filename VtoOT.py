@@ -58,7 +58,7 @@ def VtoOT(argv):
             config2_dict = json.load(f)
     else:
         print("No CONFIG json - using defaults.")
-        config2_dict = {"dynamic":True}  # Load an empty config (says "no settings - cause this is smart")
+        config2_dict = {"dynamic": False}  # Load an empty config (says "no settings - cause this is smart")
 
     if args.OUTdir:
         print("output directory detected dumping there")
