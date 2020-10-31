@@ -41,6 +41,10 @@ def VtoOT(argv):
                         type=str, dest="CONfile",
                         help="Path to a .config file")
 
+    parser.add_argument('-s', '--startdat',
+                        type=str, dest="STARTdat",
+                        help="Path to a starting .dat file [i.e jobtype/ENCUT etc]")
+
     # Execute the parse_args() method
     args = parser.parse_args()
 
@@ -67,6 +71,15 @@ def VtoOT(argv):
         print("no output directory detected - dumping in POSCAR directory")
         outputdir = "/".join(sys.argv[1].split("/")[:-1])
 
+    if args.STARTdat:
+        print("Starting Dat wanted")
+        initialdat = []
+        with open(args.STARTdat, "r") as startdat:
+            for line in startdat:
+                initialdat.append(line)
+    else:
+        initialdat = []
+
     ############################################### END ARGUMENT PARSER ################################################
 
 
@@ -91,14 +104,15 @@ def VtoOT(argv):
     write(outputdir + "/ATOMsites.xyz", read(input_pos))  # Saves an XYZ quickly since its good to do so.
     # INITIAL CHECK - WILL REWORK TO DO MATH HERE AND AUTOCONV TO CART.
     if readlines[8].startswith("C") or readlines[8].startswith("c"):
-        print("COOL")
+        print("COOL. Read the input POSCAR as cartesian")
     else:
         print("Direct POSCAR found - This will break my parser if continued")
         if input("Shall i update your poscar to be cartesian? - THIS HAS NOT BEEN EXTENSIVE TESTED: Y/N").lower() == "y":
             dir2cart(input_pos)
+            print("Poscar updated. - Check for POSCAR_cart in the submit directory")
         else:
             exit()
-        print("Poscar updated.")
+            print("Poscar not updated. - Exiting now.")
 
     # FINAL CHECK HERE! - If there wasn't an "Selective dynamics line it'll do its best"
     if readlines[7].startswith("S") or readlines[7].startswith("s"):
@@ -169,7 +183,8 @@ def VtoOT(argv):
     else:
         Ublock = []  # too ensure no dead block is added
 
-    completeblock = [latticeblock, "\n", speciesblock, "\n", constblock, "\n", Ublock, "\n", posblock2]
+    completeblock = [initialdat, "\n", latticeblock, "\n", speciesblock, "\n",
+                     constblock, "\n", Ublock, "\n", posblock2]
     completeblock = [val for sublist in completeblock for val in sublist]
 
     if config2_dict.get("dynamic") is False:

@@ -16,7 +16,8 @@ def dir2cart(inputfile):
     for lines in f:
         string.append(lines)
 
-    listofcarts = stru.cart_coords.tolist() # Using pymatgen to get the cart co-ords since math sucks.
+    t = stru.cart_coords.round(6)
+    listofcarts = t.tolist() # Using pymatgen to get the cart co-ords since math sucks.
 
     for check in [5,6,7,8]: # Typical range for the cart/direct distinction.
         if string[check].lower() == 'direct\n':
@@ -27,7 +28,7 @@ def dir2cart(inputfile):
 
     while j < (k + len(listofcarts)):
         print(string[j])
-        listofcarts[j-k].append(string[j].split()[3])
+        listofcarts[j-k].append(" ".join(string[j].split()[3:]))
         j += 1
 
     lofl =[]
@@ -42,6 +43,10 @@ def dir2cart(inputfile):
         print(lofl[j-k])
         string[j] = ' '.join(lofl[j-k]) + '\n'
         j += 1
+
+    with open('/'.join(inputfile.split("/")[:-1]) + "/POSCAR_cart", "w+") as outfile:
+        for line in string:
+            outfile.write(line)
 
 
 if __name__ == "__main__":
