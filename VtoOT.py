@@ -110,6 +110,7 @@ def VtoOT(argv):
         if input("Shall i update your poscar to be cartesian? - THIS HAS NOT BEEN EXTENSIVE TESTED: Y/N").lower() == "y":
             dir2cart(input_pos)
             print("Poscar updated. - Check for POSCAR_cart in the submit directory")
+            exit()
         else:
             exit()
             print("Poscar not updated. - Exiting now.")
@@ -122,7 +123,7 @@ def VtoOT(argv):
 
     latticeblock = ['%BLOCK LATTICE_CART\n', 'ang\n']
     for i in range(0, 3):
-        stringer = str(read(input_pos).cell.T[i])  # lattice dims
+        stringer = str(read(input_pos).cell.T[i].round(6))  # lattice dims
         for k in (('[', ''), (']', '')):
             stringer = stringer.replace(*k)
         latticeblock.append('  ' + stringer + '\n')
