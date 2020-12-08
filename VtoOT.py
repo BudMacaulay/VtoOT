@@ -109,7 +109,7 @@ def VtoOT(argv):
         print("Direct POSCAR found - This will break my parser if continued")
         if input("Shall i update your poscar to be cartesian? - THIS HAS NOT BEEN EXTENSIVE TESTED: Y/N").lower() == "y":
             dir2cart(input_pos)
-            print("Poscar updated. - Check for POSCAR_cart in the submit directory")
+            print("Poscar updated. - Check for cart_POSCAR in the submit directory")
             exit()
         else:
             exit()

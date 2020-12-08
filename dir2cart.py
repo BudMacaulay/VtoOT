@@ -44,7 +44,7 @@ def dir2cart(inputfile):
         string[j] = ' '.join(lofl[j-k]) + '\n'
         j += 1
 
-    with open('/'.join(inputfile.split("/")[:-1]) + "/POSCAR_cart", "w+") as outfile:
+    with open('/'.join(inputfile.split("/")[:-1]) + "/cart_POSCAR", "w+") as outfile:
         for line in string:
             outfile.write(line)
 
