@@ -6,6 +6,8 @@ A Small Tool to convert vasp POSCARs into a ONETEP ready .dat file (posblock e.t
 1. Actually get some information on what the "Guesses" should be and save in a seperate .json for initialisation. Would save me alot of time. 
 As of current the [config.json flags "Guess{flag} do nothing]
 2. Incorp the parser directly as variables cause atm it's a bit silly but working.
+3. Make files in a tmp directory and distrubute so can be called from anywhere. As of current can't be called from current directory.
+
 
 
 ## Prerequisites:
