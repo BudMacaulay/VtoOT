@@ -7,8 +7,8 @@ from collections import Counter
 
 
 def onetepcheck(file):
-    """ Reads said dat file and determines if the neccessary things that are required for the onetep calc to run are
-    present. As of current checks atoms, simcell, task type, cutoff and a few other bits.
+    """ Reads said dat file and determines if the neccessary things that are required for the onetep calc to run are present.
+    Checks: NGWF < SIMCELL, Task, Lattice, species, species_pot, if file 'includefile' exists.
     """
 
     if "/" in file:
